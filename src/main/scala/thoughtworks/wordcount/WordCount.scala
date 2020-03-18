@@ -10,11 +10,22 @@ object WordCount {
   log.setLevel(Level.INFO)
 
   def main(args: Array[String]): Unit = {
+    //val spark = SparkSession.builder.master("local").appName("Word Count").getOrCreate()
     val spark = SparkSession.builder.appName("Word Count").getOrCreate()
     log.info("Application Initialized: " + spark.sparkContext.appName)
 
-    val inputPath = if(!args.isEmpty) args(0) else "./src/test/resources/data/words.txt"
-    val outputPath = if(args.length > 1) args(1) else "./target/test-" + LocalDateTime.now()
+    //val inputPath = if(!args.isEmpty) args(0) else "./src/test/resources/data/words.txt"
+    //val outputPath = if(args.length > 1) args(1) else "./target/test-" + LocalDateTime.now()
+
+    val arguments = args.map(e => {
+      e.split("=") match {
+        case Array(key, value) => key -> value
+        case _ => "" -> ""
+      }
+    }).toMap
+
+    val inputPath = if (!arguments.isEmpty) arguments("--inputPath") else "./src/test/resources/data/words.txt"
+    val outputPath = if(arguments.size > 1) arguments("--outputPath") else "./target/test-" + LocalDateTime.now()
 
     run(spark, inputPath, outputPath)
 
